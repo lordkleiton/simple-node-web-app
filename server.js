@@ -40,25 +40,21 @@ mongoClient.connect(dbData.uri, {useNewUrlParser: true}, (err, client) => {
 
     db = client.db(dbData.dbName)
 
-    let login = 'testee'
+    let login = 'testeeee'
     let passwd = 'tessste'
 
     let exists = async () => { return await search(login) }
 
-    exists().then((result) => console.log(result))
-
-    /* db.collection('data').find({ oi: 'oi' }, (err, results) => { 
-        results.toArray((err, result) => {
-            if (!result.length){
-                db.collection('data').insertOne({ _id: login, password: passwd })
-                console.log('inserido')
-            }
-            else{
-                console.log('já existe')
-                console.log(result)
-            }
-        })
-    }) */
+    exists().then((result) => {
+        if (result.length === 0) {
+            let insere = async () => { await insert(login, passwd) }
+            insere()
+            console.log('inserido')
+        }
+        else {
+            console.log(result)
+        }
+    })
 
     app.listen(3000, () => {
         console.log('Rodando em localhost:3000')
@@ -72,5 +68,11 @@ async function search(login){
                 resolve(result)
             })
         })
+    })
+}
+
+async function insert(login, passwd){
+    return new Promise((resolve) => {
+        db.collection('data').insertOne({ _id: login, password: passwd })
     })
 }
