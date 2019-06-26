@@ -16,9 +16,6 @@ const app = express();
 let a = ''
 const baseApiUrl = 'https://ghibliapi.herokuapp.com/'
 let error = ''
-let success = ''
-
-
 
 request(baseApiUrl + 'films', { json: true }, (err, res, body) => {
     if (err) { return console.log(err) }
@@ -31,21 +28,49 @@ app.set('view engine', 'ejs')
 
 app.use(bodyParser.urlencoded({extended: true}))
 
+/* rotas */
+
 app.get('/', (req, res) => {
     res.render('index.ejs')
+})
+
+app.get('/error', (req, res) => {
+    res.render('error.ejs', { msg: error })
 })
 
 app.get('/login', (req, res) => {
     res.render('login.ejs')
 })
 
-app.post('/results', (req, res) => {
-    res.render('results', { data: req.body, a: a })
-})
-
-app.post('/signup', (req, res) => {
+app.get('/signup', (req, res) => {
     res.render('signup.ejs')
 })
+
+app.post('/createuser', (req, res) => {
+    insertUser('usuarios', req.body.login, req.body.password).then((r) => {
+        if (r !== 1) {
+            console.log('erro')
+            error = 'usuario ja existe'
+            res.redirect(302, '/error')
+        }
+    })
+})
+
+app.post('/loguser', (req, res) => {
+    checkUser('usuarios', req.body.login).then((r) => {
+        if (r.length){
+            res.render('results', { data: a })
+            console.log(r)
+        }
+        else{
+            console.log('erro')
+            error = 'usuario inexistente'
+            res.redirect(302, '/error')
+        }
+    })
+})
+
+
 
 startServer()
 
@@ -58,8 +83,8 @@ function startServer(){
             return
         }
 
-        console.log('Conexão com o db estabelecida com sucesso')
-        console.log(`Conectado com o id: ${connection.threadId}`)
+        console.log('Conexão com o db estabelecida com sucesso.')
+        console.log(`Conectado com o id: ${connection.threadId}.`)
 
         app.listen(3000, () => {
             console.log('Rodando em localhost:3000')
@@ -88,14 +113,14 @@ async function insertUser(table, login, password){
     })
 }
 
-function endConnection() {
-    connection.end()
+async function checkUser(table, login){
+    return new Promise((resolve) => {
+        let stmt = 'SELECT * FROM ?? WHERE login = ?'
+        let inserts = [table, login]
+        stmt = mysql.format(stmt, inserts)
+
+        connection.query(stmt, (err, results, fields) => {
+            err ? resolve(err) : resolve(results)
+        })
+    })
 }
-
-/* execução */
-
-insertUser('usuarios', 'marioooooo', 'owo').then((r) => console.log(r))
-
-queryAll('usuarios').then((r) => { for (let re of r) console.log(re.login, re.password) })
-
-endConnection()
