@@ -17,10 +17,13 @@ let a = ''
 const baseApiUrl = 'https://ghibliapi.herokuapp.com/'
 
 
+
 request(baseApiUrl + 'films', { json: true }, (err, res, body) => {
     if (err) { return console.log(err) }
     a = body
 })
+
+/* configuração da aplicação */
 
 app.set('view engine', 'ejs')
 
@@ -42,14 +45,59 @@ app.post('/signup', (req, res) => {
     res.render('signup.ejs')
 })
 
-connection.connect()
+startServer()
 
-connection.query('select * from users', (error, results, fields) => {
-    if (error) throw error;
-    console.log('user:', results[0].login + ';', 'password:', results[0].password);
-})
+/* funções */
 
-connection.end()
+function startServer(){
+    connection.connect((err) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack)
+            return
+        }
+
+        console.log('Conexão com o db estabelecida com sucesso')
+        console.log(`Conectado com o id: ${connection.threadId}`)
+
+        app.listen(3000, () => {
+            console.log('Rodando em localhost:3000')
+        })
+    })
+}
+
+
+function queryAll(table){
+    connection.query(`SELECT * FROM ${table}`, (error, results, fields) => {
+        if (error) throw error;
+
+        for (let result of results){
+            console.log('user:', result.login + ';', 'password:', result.password)
+        }
+    })
+}
+
+function insertUser(table, login, password){
+    let stmt = 'INSERT INTO ?? (login, password) VALUES (?, ?)'
+    let inserts = [table, login, password]
+    stmt = mysql.format(stmt, inserts)
+
+    connection.query(stmt, (error, results, fields) => {
+        if (error) throw error
+        console.log(results)
+        console.log('inserido com sucesso')
+    })
+}
+
+// insertUser('users', 'mariooooo', 'owo')
+
+function endConnection(){
+    connection.end()
+}
+
+queryAll('users')
+
+
+endConnection()
 
 // console.log('iniciando')
 
@@ -77,9 +125,6 @@ connection.end()
     
 // })
 
-app.listen(3000, () => {
-    console.log('Rodando em localhost:3000')
-})
 
 // async function search(login){
 //     return new Promise((resolve) => {
