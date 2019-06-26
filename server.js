@@ -15,6 +15,8 @@ const app = express();
 
 let a = ''
 const baseApiUrl = 'https://ghibliapi.herokuapp.com/'
+let error = ''
+let success = ''
 
 
 
@@ -66,80 +68,34 @@ function startServer(){
 }
 
 
-function queryAll(table){
-    connection.query(`SELECT * FROM ${table}`, (error, results, fields) => {
-        if (error) throw error;
-
-        for (let result of results){
-            console.log('user:', result.login + ';', 'password:', result.password)
-        }
+async function queryAll(table){
+    return new Promise((resolve) => {
+        connection.query(`SELECT * FROM ${table}`, (err, results, fields) => {
+            err ? resolve(err) : resolve(results)
+        })
     })
 }
 
-function insertUser(table, login, password){
-    let stmt = 'INSERT INTO ?? (login, password) VALUES (?, ?)'
-    let inserts = [table, login, password]
-    stmt = mysql.format(stmt, inserts)
+async function insertUser(table, login, password){
+    return new Promise((resolve) => {
+        let stmt = 'INSERT INTO ?? (login, password) VALUES (?, ?)'
+        let inserts = [table, login, password]
+        stmt = mysql.format(stmt, inserts)
 
-    connection.query(stmt, (error, results, fields) => {
-        if (error) throw error
-        console.log(results)
-        console.log('inserido com sucesso')
+        connection.query(stmt, (err, results, fields) => {
+            err ? resolve(err) : resolve(results.affectedRows)
+        })
     })
 }
 
-// insertUser('users', 'mariooooo', 'owo')
-
-function endConnection(){
+function endConnection() {
     connection.end()
 }
 
-queryAll('users')
+/* execução */
 
+insertUser('usuarios', 'marioooooo', 'owo').then((r) => console.log(r))
+
+queryAll('usuarios').then((r) => { for (let re of r) console.log(re.login, re.password) })
 
 endConnection()
-
-// console.log('iniciando')
-
-// mongoClient.connect(dbData.uri, {useNewUrlParser: true}, (err, client) => {
-//     if (err) return console.log(err)
-
-//     db = client.db(dbData.dbName)
-
-//     let login = 'testeeee'
-//     let passwd = 'tessste'
-
-//     let exists = async () => { return await search(login) }
-
-//     exists().then((result) => {
-//         if (result.length === 0) {
-//             let insere = async () => { await insert(login, passwd) }
-//             insere()
-//             console.log('inserido')
-//         }
-//         else {
-//             console.log(result)
-//         }
-//     })
-
-    
-// })
-
-
-// async function search(login){
-//     return new Promise((resolve) => {
-//         db.collection('data').find({ _id: login }, (err, results) => {
-//             results.toArray((err, result) => {
-//                 resolve(result)
-//             })
-//         })
-//     })
-// }
-
-// async function insert(login, passwd){
-//     return new Promise((resolve) => {
-//         db.collection('data').insertOne({ _id: login, password: passwd })
-//     })
-// }
-
-// console.log('terminando')
