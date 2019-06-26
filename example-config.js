@@ -1,8 +1,6 @@
-const protocol = ''                                         //ex.: mongodb+srv
-const user = ''                                             //db user
-const password = ''                                         //db user password
-const dbName = ''                                           //db name
-const server = `/${dbName}`       //server url
-const uri = `${protocol}://${user}:${password}@${server}`
+const host = ''     // ex.: localhost
+const user = ''     // ex.: root
+const password = '' // ex.: 123456789
+const database = '' // ex.: teste
 
-exports.default = { uri, dbName }
+exports.default = { host, user, password, database }
