@@ -1,8 +1,9 @@
+require("dotenv-safe").load()
+const jwt = require('jsonwebtoken')
 const request = require('request')
 const express = require('express');
 const bodyParser = require('body-parser')
 const dbData = require('./config').default
-// const mongoClient = require('mongodb').MongoClient
 const mysql = require('mysql')
 const connection =  mysql.createConnection({
                         host: dbData.host,
@@ -11,7 +12,10 @@ const connection =  mysql.createConnection({
                         database: dbData.database
                     })
 
-const app = express();
+const app = express()
+const Cookies = require('cookies')
+const cookeys = ['ghibli studios']
+
 
 let a = ''
 const baseApiUrl = 'https://ghibliapi.herokuapp.com/'
@@ -26,7 +30,7 @@ request(baseApiUrl + 'films', { json: true }, (err, res, body) => {
 
 app.set('view engine', 'ejs')
 
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 
 /* rotas */
 
@@ -53,24 +57,40 @@ app.post('/createuser', (req, res) => {
             error = 'usuario ja existe'
             res.redirect(302, '/error')
         }
+        else{
+            res.render('results', { data: a})
+        }
     })
 })
 
-app.post('/loguser', (req, res) => {
-    checkUser('usuarios', req.body.login).then((r) => {
+app.post('/loguser', (req, res, next) => {
+    checkUser('usuarios', req.body.login, req.body.password).then((r) => {
         if (r.length){
+            const id = req.body.login
+            let token = jwt.sign({ id }, process.env.SECRET, {
+                expiresIn: 600
+            })
+
+            let cookies = new Cookies(req, res, { keys: cookeys })
+
+            cookies.set('tkn', token, { signed: true, maxAge: 3000 })
+
+            console.log(token)
+            console.log(cookies.get('tkn', { signed: true} ))
+
             res.render('results', { data: a })
-            console.log(r)
         }
         else{
             console.log('erro')
-            error = 'usuario inexistente'
+            error = 'Não encontrado. Verifique novamente seu login e senha ou cadastre-se'
             res.redirect(302, '/error')
         }
-    })
+    }, verifyJWT)
 })
 
-
+app.get('*', (req, res) => {
+    res.render('404.ejs')
+})
 
 startServer()
 
@@ -113,14 +133,37 @@ async function insertUser(table, login, password){
     })
 }
 
-async function checkUser(table, login){
+async function checkUser(table, login, password){
     return new Promise((resolve) => {
-        let stmt = 'SELECT * FROM ?? WHERE login = ?'
-        let inserts = [table, login]
+        let stmt = 'SELECT * FROM ?? WHERE login = ? AND password = ?'
+        let inserts = [table, login, password]
         stmt = mysql.format(stmt, inserts)
 
         connection.query(stmt, (err, results, fields) => {
             err ? resolve(err) : resolve(results)
         })
+    })
+}
+
+function verifyJWT(req, res, next) {
+    let cookies = new Cookies(req, res, { keys: cookeys })
+    let token = cookies.get('tkn', { signed: true })
+
+    if (!token){
+        erro = 'Faça login para prosseguir.'
+        res.redirect(302, '/error')
+        return
+    } 
+
+    jwt.verify(token, process.env.SECRET, function (err, decoded) {
+        if (err) {
+            error = 'Não foi possível autenticar no sistema.'
+            console.log(error)
+            res.redirect(302, '/error')
+            return
+        } 
+
+        req.userId = decoded.id
+        next()
     })
 }
