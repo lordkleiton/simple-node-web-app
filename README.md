@@ -1,4 +1,4 @@
-#Instalação
+# Instalação
 
 ```npm i``` no seu terminal
 
@@ -10,9 +10,9 @@ bd.
 
 Após isso, crie um arquivo chamado ```.env``` baseado no ```.env.example```, contendo a sua chave (quaisquer caracteres) de encriptação para o JWT.
 
-#Iniciar
+# Iniciar
 
 Em seu terminal, ```npm run dev```.
 
-#Pra que?
-Baseado nos requisitos aqui[https://github.com/yanzmtbr/full-stack-test/blob/master/README.md] mostrados.
+# Pra que?
+Baseado nos requisitos [aqui](https://github.com/yanzmtbr/full-stack-test/blob/master/README.md) mostrados.
