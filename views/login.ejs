@@ -2,14 +2,15 @@
 <html lang="pt-br">
     <head>
         <meta charset="UTF-8">
-        <title>Ghibli Info</title>
+        <link rel="stylesheet" href="css/login.css">
+        <title>Login - Ghibli Info</title>
     </head>
     <body>
-        <h1 class="center">Login<h1>
         <div class="form-container">
+            <h1 class="center">Login<h1></h1>
             <form action="/loguser" method="POST">
-                <input type="text" placeholder="Usuário" name="login" required>
-                <input type="password" placeholder="Senha" name="password" required>
+                <input type="text" placeholder="Usuário" name="login" required><br/>
+                <input type="password" placeholder="Senha" name="password" required><br/>
                 <button type="submit">Login</button>
             </form>
         </div>

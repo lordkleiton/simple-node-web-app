@@ -1,5 +1,25 @@
-<div class="content">
-    <% for (let item of data){ %> 
-        <p class="title"><%= item.title %></p>
-    <% } %>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/results.css">
+    <title>Resultados da busca - Ghibli Info</title>
+</head>
+<body>
+    <div class="content">
+        <h1>Lista de filmes do estúdio Ghibli</h1>
+        <% for (let item of data){ %>
+            <div class="fact">
+                <h3 class="title"><%= item.title %></h3>
+                <p><%= item.description %></p>
+                <div class="infobox">
+                    <p><strong>Direção:</strong> <%= item.director %></p>
+                    <p><strong>Produção:</strong> <%= item.producer %></p>
+                    <p><strong>Ano de Lançamento:</strong> <%= item.release_date %></p>
+                    <p><strong>Pontuação no Rotten Tomatoes:</strong> <%= item.rt_score %>%</p>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
