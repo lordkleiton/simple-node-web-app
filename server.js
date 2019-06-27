@@ -32,6 +32,8 @@ app.set('view engine', 'ejs')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use('/css',express.static(__dirname +'/assets/css'));
+
 /* rotas */
 
 app.get('/', (req, res) => {
