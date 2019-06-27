@@ -40,6 +40,7 @@ app.get('/', (req, res) => {
 
 app.get('/error', (req, res) => {
     res.render('error.ejs', { msg: error })
+    error = ''
 })
 
 app.get('/login', (req, res) => {
@@ -51,7 +52,7 @@ app.get('/signup', (req, res) => {
 })
 
 app.post('/createuser', (req, res) => {
-    insertUser('usuarios', req.body.login, req.body.password).then((r) => {
+    insertUser('users', req.body.login, req.body.password).then((r) => {
         if (r !== 1) {
             console.log('erro')
             error = 'usuario ja existe'
@@ -64,7 +65,7 @@ app.post('/createuser', (req, res) => {
 })
 
 app.post('/loguser', (req, res, next) => {
-    checkUser('usuarios', req.body.login, req.body.password).then((r) => {
+    checkUser('users', req.body.login, req.body.password).then((r) => {
         if (r.length){
             const id = req.body.login
             let token = jwt.sign({ id }, process.env.SECRET, {
